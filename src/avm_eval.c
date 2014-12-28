@@ -141,7 +141,7 @@ static int eval_call ( const AVM_Operation op, AVM_Context ctx ) {
 
 static int eval_ret ( const AVM_Operation op, AVM_Context ctx ) {
   ctx->ins = ctx->call_stack[--ctx->call_stack_size];
-  if(ctx->call_stack_size < 0)
+  if(ctx->call_stack_size == 0)
     return avm__error(ctx, "Unable to return with no functions in the call stack");
 
   return 0;
