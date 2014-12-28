@@ -29,7 +29,7 @@ typedef struct { // contents on the struct are internal
 
   uint32_t padding_;
   char* error;
-}* AVM_Context;
+} AVM_Context;
 
 typedef enum {
   avm_opc_load,   /* loads `size` bytes from `address` and pushes them to the stack */
@@ -69,16 +69,17 @@ typedef union{
   };
 } AVM_Operation;
 
-int init_avm(AVM_Context* ctx, AVM_Operation** ops, size_t oplen);
-int eval(AVM_Context ctx, avm_int* result);
+int init_avm(AVM_Context* ctx, const AVM_Operation* ops, size_t oplen);
+void avm_free(AVM_Context ctx);
+int eval(AVM_Context* ctx, avm_int* result);
 
-int avm_heap_get(AVM_Context ctx, avm_int* data, avm_size_t loc);
-int avm_heap_set(AVM_Context ctx, avm_int data, avm_size_t loc);
+int avm_heap_get(AVM_Context* ctx, avm_int* data, avm_size_t loc);
+int avm_heap_set(AVM_Context* ctx, avm_int data, avm_size_t loc);
 
-int avm_stack_push(AVM_Context ctx, avm_int data);
-int avm_stack_pop(AVM_Context ctx, avm_int* data);
-int avm_stack_peak(AVM_Context ctx, avm_int* data);
+int avm_stack_push(AVM_Context* ctx, avm_int data);
+int avm_stack_pop(AVM_Context* ctx, avm_int* data);
+int avm_stack_peak(AVM_Context* ctx, avm_int* data);
 
-int avm__error(AVM_Context ctx, const char* fmt, ...);
+int avm__error(AVM_Context* ctx, const char* fmt, ...);
 
 #endif

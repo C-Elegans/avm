@@ -1,9 +1,9 @@
 CC=clang
-CC_OPTS=-O2 -g -std=gnu11 \
+CC_OPTS=-g -std=gnu11 \
+				-fsanitize=address -fsanitize=undefined \
 	      -Weverything \
 	        -Wno-unused-parameter -Wno-format-nonliteral
-LIBS=-L lib/libcello/ -I lib/libcello/include/ -static -lCello \
-		 -I src/ \
+LIBS= -I src/ \
      -static-libgcc
 
 build: lib
