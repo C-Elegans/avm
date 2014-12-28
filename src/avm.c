@@ -5,6 +5,13 @@
 #include "avm.h"
 #include "avm_util.h"
 
+
+int main(int argv, char** args) {
+  printf("test\n");
+  return 0;
+}
+
+
 /**
  * Sets an error code on the context with the given format
  * string and args.
@@ -69,10 +76,10 @@ int avm_heap_get(AVM_Context ctx, avm_int* data, avm_size_t loc) {
   if(loc >= ctx->memory_size){ // memory never written, it's 0.
     *data = 0;
     return 0;
-  } else {
-    *data = ctx->memory[loc];
-    return 0;
   }
+
+  *data = ctx->memory[loc];
+  return 0;
 }
 
 int avm_heap_set(AVM_Context ctx, avm_int data, avm_size_t loc) {
