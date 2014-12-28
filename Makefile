@@ -1,12 +1,13 @@
-CC=clang -O2 -g -std=gnu11 \
-	 -Weverything \
-	     -Wno-unused-parameter -Wno-format-nonliteral
+CC=clang
+CC_OPTS=-O2 -g -std=gnu11 \
+	      -Weverything \
+	        -Wno-unused-parameter -Wno-format-nonliteral
 LIBS=-L lib/libcello/ -I lib/libcello/include/ -static -lCello \
 		 -I src/ \
      -static-libgcc
 
 build: lib
-	$(CC) src/*.c $(LIBS) -o avm
+	$(CC) $(CC_OPTS) src/*.c $(LIBS) -o avm
 
 
 lib:
