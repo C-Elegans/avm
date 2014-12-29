@@ -80,6 +80,10 @@ int avm_stack_push(AVM_Context* ctx, avm_int data);
 int avm_stack_pop(AVM_Context* ctx, avm_int* data);
 int avm_stack_peak(AVM_Context* ctx, avm_int* data);
 
+int avm_stringify(AVM_Context* ctx, avm_size_t* ins, char** output);
+int avm_stringify_count(AVM_Context* ctx, avm_size_t ins, avm_size_t len, char** output);
+
+
 int avm__error(AVM_Context* ctx, const char* fmt, ...);
 
 #endif

@@ -9,23 +9,28 @@
 #define BUF_SIZE 4096
 
 int main(int argv, char** args) {
-  char tempbuf[BUF_SIZE];
-  size_t content_size = 0;
-  void* content = my_malloc(BUF_SIZE);
-  while(1) {
-    size_t bytes_read = fread(tempbuf, 1, BUF_SIZE, stdin);
-    size_t oldsize = content_size;
-    if(bytes_read == 0 && feof(stdin)) break;
-    content_size += bytes_read;
-    content = realloc(content, content_size);
-    memcpy(((char*) content) + oldsize, tempbuf, bytes_read);
+  static char opc[BUF_SIZE];
+  size_t bytes_read = fread(opc, 1, BUF_SIZE, stdin);
+  bytes_read = bytes_read / sizeof(AVM_Operation);
+
+  if(fread(NULL, 1, BUF_SIZE, stdin) != 0){
+    printf("buf size exceeded, yet there is still input\n");
+    exit(EXIT_FAILURE);
   }
 
   AVM_Context ctx;
-  int retcode = init_avm(&ctx, content, 100);
+  int retcode = init_avm(&ctx, (void*) opc, bytes_read);
+  char* result;
+  if(avm_stringify_count(&ctx, 0,(avm_size_t) bytes_read, &result))
+    printf("err: %s\n", ctx.error);
+  else {printf("%s", result); my_free(result);}
+
+  avm_free(ctx);
+  retcode = init_avm(&ctx, (void*) opc, bytes_read);
   if(retcode) printf("failed to initialize vm");
   avm_int out;
-  if(eval(&ctx, &out)) printf("failed to eval: %s\n", ctx.error);
+  if(eval(&ctx, &out))
+    printf("err: %s\n", ctx.error);
   avm_free(ctx);
   return 0;
 }
