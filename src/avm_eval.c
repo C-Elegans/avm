@@ -14,15 +14,23 @@ static int check_out_of_bounds(avm_size_t address, avm_size_t size) {
 }
 
 static int push_call(AVM_Context* ctx, avm_size_t target) {
-  if(ctx->call_stack_cap == ++ctx->call_stack_size){ // about to overflow? resize
-    size_t new_size = ctx->call_stack_cap * 2;
-    ctx->call_stack = my_crealloc(ctx->call_stack, ctx->call_stack_cap, new_size);
+  if(ctx->call_stack_size + 1 == AVM_SIZE_MAX)
+    return avm__error(ctx, "Call stack overflow");
+
+  if(ctx->call_stack_cap == ctx->call_stack_size + 1){ // overflowing? resize
+    size_t new_size = min(ctx->call_stack_cap * 2, AVM_SIZE_MAX);
+    ctx->call_stack = my_crealloc(ctx->call_stack,
+        ctx->call_stack_cap * sizeof(avm_size_t), new_size * sizeof(avm_size_t));
 
     if(ctx->call_stack == NULL)
       return avm__error(ctx, "Unable to reallocate stack of %d bytes", new_size);
+
+    ctx->call_stack_cap = new_size;
   }
 
-  ctx->call_stack[ctx->call_stack_size - 1] = target;
+  ctx->call_stack[ctx->call_stack_size] = target;
+
+  ctx->call_stack_size += 1;
 
   return 0;
 }
@@ -129,17 +137,21 @@ SIMPLE_BINOP(shr, a >> (b & 0x3F))
 /* push(pop() << pop()), rhs > 63 is defined as 0 */
 SIMPLE_BINOP(shl, a << (b & 0x3F))
 
+/* call(0xF00BA4) */
 static int eval_calli ( const AVM_Operation op, AVM_Context* ctx ) {
   ctx->ins = op.target;
-  push_call(ctx, op.target);
+  if(push_call(ctx, op.target))
+    return 1;
   return 0;
 }
 
+/* call(pop()) */
 static int eval_call ( const AVM_Operation op, AVM_Context* ctx ) {
   avm_int target;
   if(avm_stack_pop(ctx, &target)) return 1;
   ctx->ins = (avm_size_t) target;
-  push_call(ctx, (avm_size_t) target);
+  if(push_call(ctx, (avm_size_t) target))
+    return 1;
   return 0;
 }
 
@@ -153,6 +165,7 @@ static int eval_ret ( const AVM_Operation op, AVM_Context* ctx ) {
   return 0;
 }
 
+/* if(pop() == 0) goto 0xF00BA4 */
 static int eval_jmpez ( const AVM_Operation op, AVM_Context* ctx ) {
   avm_int test;
   if(avm_stack_pop(ctx, &test)) return 1;

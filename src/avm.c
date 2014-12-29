@@ -13,7 +13,8 @@ int main(int argv, char** args) {
   size_t bytes_read = fread(opc, 1, BUF_SIZE, stdin);
   bytes_read = bytes_read / sizeof(AVM_Operation);
 
-  if(fread(NULL, 1, BUF_SIZE, stdin) != 0){
+  char dummy[1];
+  if(fread(dummy, 1, 1, stdin) != 0){
     printf("buf size exceeded, yet there is still input\n");
     exit(EXIT_FAILURE);
   }
@@ -67,20 +68,20 @@ int init_avm(AVM_Context* ctx, const AVM_Operation* ops, size_t oplen) {
   ctx->error = NULL;
 
   assert((oplen*sizeof(AVM_Operation))/sizeof(avm_int) < AVM_SIZE_MAX / 2);
-  size_t memory_size = oplen * sizeof(AVM_Operation) + INITIAL_MEMORY_OVERHEAD * sizeof(avm_int);
+  size_t memory_size = oplen  + INITIAL_MEMORY_OVERHEAD;
 
   // allocate enough memory for opcodes and some slack besides
   ctx->memory_size = (avm_size_t) memory_size;
-  ctx->memory = my_calloc(ctx->memory_size, 1);
+  ctx->memory = my_calloc(ctx->memory_size * sizeof(avm_int), 1);
   if(ctx->memory == NULL)
-    return avm__error(ctx, "unable to allocate heap (%d bytes)", memory_size);
+    return avm__error(ctx, "unable to allocate heap (%d avm_int)", memory_size);
   memcpy(ctx->memory, ops, oplen * sizeof(AVM_Operation));
 
   ctx->stack_size = 0;
-  ctx->stack_cap = INITIAL_MEMORY_OVERHEAD * sizeof(avm_int);
+  ctx->stack_cap = INITIAL_MEMORY_OVERHEAD;
   // malloc used because stack semantics guarantee
   // uninitialized data cannot be read
-  ctx->stack = my_malloc(ctx->stack_cap);
+  ctx->stack = my_malloc(ctx->stack_cap * sizeof(avm_int));
   if(ctx->stack == NULL)
     return avm__error(ctx, "unable to allocate stack (%d bytes)", ctx->stack_cap);
 
