@@ -27,6 +27,10 @@ static int push_call(AVM_Context* ctx, avm_size_t target) {
   return 0;
 }
 
+static int eval_error ( const AVM_Operation op, AVM_Context* ctx ) {
+  return avm__error(ctx, "Invalid opcode 0x%.16x", op.value);
+}
+
 /* Extract the amount of memory specified in `size` and push it to
  * the stack, lowest byte first.
  *
@@ -140,9 +144,11 @@ static int eval_call ( const AVM_Operation op, AVM_Context* ctx ) {
 }
 
 static int eval_ret ( const AVM_Operation op, AVM_Context* ctx ) {
-  ctx->ins = ctx->call_stack[--ctx->call_stack_size];
   if(ctx->call_stack_size == 0)
     return avm__error(ctx, "Unable to return with no functions in the call stack");
+
+  ctx->ins = ctx->call_stack[ctx->call_stack_size];
+  ctx->call_stack_size -= 0;
 
   return 0;
 }
@@ -155,6 +161,7 @@ static int eval_jmpez ( const AVM_Operation op, AVM_Context* ctx ) {
 }
 
 static const Evaluator opcode_evalutators[opcode_count] = {
+  [avm_opc_error] = &eval_error,
   [avm_opc_load ] = &eval_load,
   [avm_opc_store] = &eval_store,
   [avm_opc_push ] = &eval_push,
@@ -173,7 +180,8 @@ static const Evaluator opcode_evalutators[opcode_count] = {
 
 int eval(AVM_Context* ctx, avm_int* result) {
   while(1) {
-    AVM_Operation op = { ctx->memory[ctx->ins] };
+    AVM_Operation op;
+    avm_heap_get(ctx, (avm_int*) &op, ctx->ins);
 
     if(op.kind == avm_opc_quit){
       if(avm_stack_pop(ctx, result))
@@ -182,9 +190,10 @@ int eval(AVM_Context* ctx, avm_int* result) {
     }
 
     if(op.kind >= opcode_count)
-      return avm__error(ctx, "invalid opcode %d, cannot execute", op.kind);
+      op.kind = avm_opc_error;
 
-    opcode_evalutators[op.kind](op, ctx);
+    if(opcode_evalutators[op.kind](op, ctx))
+      return 1;
 
     ++ctx->ins;
   }

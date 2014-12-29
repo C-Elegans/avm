@@ -54,6 +54,13 @@ static int stringify_calli(AVM_Context* ctx, avm_size_t* ins, char** out){
   return 0;
 }
 
+static int stringify_error(AVM_Context* ctx, avm_size_t* ins, char** out){
+  AVM_Operation op;
+  (*out) = afmt("error 0x%.16x", op.value);
+  if(*out == NULL) return 1;
+  return 0;
+}
+
 SIMPLE_BINOP(add)
 SIMPLE_BINOP(sub)
 SIMPLE_BINOP(and)
@@ -67,6 +74,7 @@ SIMPLE_BINOP(jmpez)
 SIMPLE_BINOP(quit)
 
 static const Stringifier stringifiers[opcode_count] = {
+  [avm_opc_error] = &stringify_error,
   [avm_opc_load ] = &stringify_load,
   [avm_opc_store] = &stringify_store,
   [avm_opc_push ] = &stringify_push,
@@ -94,7 +102,7 @@ int avm_stringify(AVM_Context* ctx, avm_size_t* ins, char** output) {
     return 1;
 
   if(op.kind >= opcode_count)
-    return avm__error(ctx, "Invalid opcode %d", op.kind);
+    op.kind = avm_opc_error;
 
   int retcode = stringifiers[op.kind](ctx, ins, output);
   *ins += 1;
@@ -105,7 +113,7 @@ int avm_stringify_count(AVM_Context* ctx, avm_size_t ins, avm_size_t len, char**
   if((uint64_t) ins + (uint64_t) len > AVM_SIZE_MAX)
     return avm__error(ctx, "Index %d and length %d are out of bounds", ins, len);
 
-  *output = NULL;
+  *output = my_calloc(0, 0);
 
   for(avm_size_t i = ins; i < (ins + len);) {
     char* tmpout;
@@ -114,18 +122,14 @@ int avm_stringify_count(AVM_Context* ctx, avm_size_t ins, avm_size_t len, char**
       return 1;
     }
 
-    if(*output == NULL) {
-      *output = tmpout;
-    } else {
-      char* oldvalue = *output;
-      *output = afmt("%s\n%s", oldvalue, tmpout);
+    char* oldvalue = *output;
+    *output = afmt("%s\n%s", oldvalue, tmpout);
 
-      my_free(oldvalue);
-      my_free(tmpout);
+    my_free(oldvalue);
+    my_free(tmpout);
 
-      if(*output == NULL)
-        return avm__error(ctx, "Unable to concatenate operation strings");
-    }
+    if(*output == NULL)
+      return avm__error(ctx, "Unable to concatenate operation strings");
   }
 
   return 0;

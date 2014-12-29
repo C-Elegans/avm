@@ -32,6 +32,7 @@ typedef struct { // contents on the struct are internal
 } AVM_Context;
 
 typedef enum {
+  avm_opc_error,  /* should never be executed */
   avm_opc_load,   /* loads `size` bytes from `address` and pushes them to the stack */
   avm_opc_store,  /* pops `size` bytes from the stack and stores them at `address` */
   avm_opc_push,

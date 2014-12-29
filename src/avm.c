@@ -20,10 +20,12 @@ int main(int argv, char** args) {
 
   AVM_Context ctx;
   int retcode = init_avm(&ctx, (void*) opc, bytes_read);
+  if(retcode) printf("failed to initialize vm");
   char* result;
-  if(avm_stringify_count(&ctx, 0,(avm_size_t) bytes_read, &result))
+  avm_stringify_count(&ctx, 0,(avm_size_t) bytes_read, &result);
     printf("err: %s\n", ctx.error);
-  else {printf("%s", result); my_free(result);}
+    printf("%s\n", result);
+    my_free(result);
 
   avm_free(ctx);
   retcode = init_avm(&ctx, (void*) opc, bytes_read);
