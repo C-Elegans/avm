@@ -163,7 +163,9 @@ int avm_stack_push(AVM_Context *ctx, avm_int data)
     return avm__error(ctx, "Stack overflow");
   }
 
-  if (ctx->stack_cap <= ++ctx->stack_size) {
+  ctx->stack_size += 1;
+
+  if (ctx->stack_cap <= ctx->stack_size) {
     avm_size_t new_cap = (avm_size_t) min(ctx->stack_cap * 2, AVM_SIZE_MAX);
     ctx->stack = my_realloc(ctx->stack, new_cap * sizeof(avm_int));
     if (ctx->stack == NULL) {

@@ -100,7 +100,8 @@ static int eval_store ( const AVM_Operation op, AVM_Context *ctx )
  */
 static int eval_push ( const AVM_Operation op, AVM_Context *ctx )
 {
-  avm_int data = ctx->memory[++ctx->ins];
+  avm_int data = ctx->memory[ctx->ins + 1];
+  ctx->ins += 1;
   return avm_stack_push(ctx, data);
 }
 
@@ -193,6 +194,10 @@ static const Evaluator opcode_evalutators[opcode_count] = {
   [avm_opc_jmpez] = &eval_jmpez
 };
 
+#ifdef AVM_DEBUG
+#include "avm_debug.c"
+#endif
+
 int eval(AVM_Context *ctx, avm_int *result)
 {
   assert(ctx != NULL);
@@ -202,6 +207,9 @@ int eval(AVM_Context *ctx, avm_int *result)
   while (1) {
     AVM_Operation op;
     avm_heap_get(ctx, (avm_int *) &op, ctx->ins);
+#ifdef AVM_DEBUG
+    dump_ins(ctx);
+#endif
 
     if (op.kind == avm_opc_quit) {
       return avm_stack_pop(ctx, result);
@@ -214,6 +222,10 @@ int eval(AVM_Context *ctx, avm_int *result)
     if (opcode_evalutators[op.kind](op, ctx)) {
       return 1;
     }
+
+#ifdef AVM_DEBUG
+    dump_stack(ctx);
+#endif
 
     ctx->ins += 1;
   }
