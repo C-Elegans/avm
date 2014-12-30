@@ -20,7 +20,7 @@ static int stringify_load(AVM_Context *ctx, avm_size_t *ins, char **out)
     return 1;
   }
 
-  (*out) = afmt("load %db from 0x%.4x", op.size, op.address);
+  (*out) = afmt("load\t%dw\t0x%.4x", op.size, op.address);
   if (*out == NULL) { return 1; }
   return 0;
 }
@@ -30,7 +30,7 @@ static int stringify_store(AVM_Context *ctx, avm_size_t *ins, char **out)
   AVM_Operation op;
   if (avm_heap_get(ctx, (avm_int *) &op, *ins)) { return 1; }
 
-  (*out) = afmt("store %db to 0x%.4x", op.size, op.address);
+  (*out) = afmt("store\t%dw\t0x%.4x", op.size, op.address);
   if (*out == NULL) { return 1; }
   return 0;
 }
@@ -40,7 +40,7 @@ static int stringify_push(AVM_Context *ctx, avm_size_t *ins, char **out)
   avm_int val;
   if (avm_heap_get(ctx, &val, *ins + 1)) { return 1; }
 
-  (*out) = afmt("push 0x%.16x (%d)", val, val);
+  (*out) = afmt("push\t0x%.16x (dec. %d)", val, val);
   if (*out == NULL) { return 1; }
   *ins += 1;
   return 0;
@@ -51,7 +51,7 @@ static int stringify_calli(AVM_Context *ctx, avm_size_t *ins, char **out)
   AVM_Operation op;
   if (avm_heap_get(ctx, (avm_int *) &op, *ins)) { return 1; }
 
-  (*out) = afmt("call 0x%.4x", op.target);
+  (*out) = afmt("call\t0x%.4x", op.target);
   if (*out == NULL) { return 1; }
   return 0;
 }
@@ -61,7 +61,7 @@ static int stringify_error(AVM_Context *ctx, avm_size_t *ins, char **out)
   AVM_Operation op;
   if (avm_heap_get(ctx, (avm_int *) &op, *ins)) { return 1; }
 
-  (*out) = afmt("error 0x%.16x", op.value);
+  (*out) = afmt("error\t0x%.16x", op.value);
   if (*out == NULL) { return 1; }
   return 0;
 }
@@ -71,7 +71,7 @@ static int stringify_jmpez(AVM_Context *ctx, avm_size_t *ins, char **out)
   AVM_Operation op;
   if (avm_heap_get(ctx, (avm_int *) &op, *ins)) { return 1; }
 
-  (*out) = afmt("jumpez 0x%.4x", op.target);
+  (*out) = afmt("jumpez\t0x%.4x", op.target);
   if (*out == NULL) { return 1; }
   return 0;
 }
@@ -135,9 +135,10 @@ int avm_stringify_count(AVM_Context *ctx, avm_size_t ins, avm_size_t len,
     return avm__error(ctx, "Index %d and length %d are out of bounds", ins, len);
   }
 
-  *output = NULL;
+  *output = calloc(1, 1);
 
   for (avm_size_t i = ins; i < (ins + len);) {
+    avm_size_t op_idx = i;
     char *tmpout;
     if (avm_stringify(ctx, &i, &tmpout)) {
       my_free(tmpout);
@@ -145,7 +146,7 @@ int avm_stringify_count(AVM_Context *ctx, avm_size_t ins, avm_size_t len,
     }
 
     char *oldvalue = *output;
-    *output = afmt("%s\n%s", oldvalue, tmpout);
+    *output = afmt("%s\n%.4x.\t%s", oldvalue, op_idx, tmpout);
 
     my_free(oldvalue);
     my_free(tmpout);
