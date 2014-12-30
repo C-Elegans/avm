@@ -70,6 +70,14 @@ static int stringify_error(AVM_Context *ctx, avm_size_t *ins, char **out)
   return 0;
 }
 
+static int stringify_jmpez(AVM_Context *ctx, avm_size_t *ins, char **out)
+{
+  AVM_Operation op;
+  (*out) = afmt("jumpez 0x%.4x", op.target);
+  if (*out == NULL) { return 1; }
+  return 0;
+}
+
 // *INDENT-OFF*
 SIMPLE_BINOP(add)
 SIMPLE_BINOP(sub)
@@ -80,7 +88,6 @@ SIMPLE_BINOP(shr)
 SIMPLE_BINOP(shl)
 SIMPLE_BINOP(ret)
 SIMPLE_BINOP(call)
-SIMPLE_BINOP(jmpez)
 SIMPLE_BINOP(quit)
 // *INDENT-ON*
 
