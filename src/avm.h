@@ -32,7 +32,7 @@ typedef struct { // contents on the struct are internal
   avm_size_t ins;
 
   uint32_t initialized;
-  char* error;
+  char *error;
 } AVM_Context;
 
 typedef enum {
@@ -57,7 +57,7 @@ typedef enum {
 } AVM_Opcode;
 
 
-typedef union{
+typedef union {
   avm_int value;
 
   struct {
@@ -69,26 +69,29 @@ typedef union{
         avm_size_t size;
       };
       /* calli */
-      struct { avm_size_t target; };
+      struct {
+        avm_size_t target;
+      };
     };
   };
 } AVM_Operation;
 
-int init_avm(AVM_Context* ctx, const AVM_Operation* ops, size_t oplen);
+int init_avm(AVM_Context *ctx, const AVM_Operation *ops, size_t oplen);
 void avm_free(AVM_Context ctx);
-int eval(AVM_Context* ctx, avm_int* result);
+int eval(AVM_Context *ctx, avm_int *result);
 
-int avm_heap_get(AVM_Context* ctx, avm_int* data, avm_size_t loc);
-int avm_heap_set(AVM_Context* ctx, avm_int data, avm_size_t loc);
+int avm_heap_get(AVM_Context *ctx, avm_int *data, avm_size_t loc);
+int avm_heap_set(AVM_Context *ctx, avm_int data, avm_size_t loc);
 
-int avm_stack_push(AVM_Context* ctx, avm_int data);
-int avm_stack_pop(AVM_Context* ctx, avm_int* data);
-int avm_stack_peak(AVM_Context* ctx, avm_int* data);
+int avm_stack_push(AVM_Context *ctx, avm_int data);
+int avm_stack_pop(AVM_Context *ctx, avm_int *data);
+int avm_stack_peak(AVM_Context *ctx, avm_int *data);
 
-int avm_stringify(AVM_Context* ctx, avm_size_t* ins, char** output);
-int avm_stringify_count(AVM_Context* ctx, avm_size_t ins, avm_size_t len, char** output);
+int avm_stringify(AVM_Context *ctx, avm_size_t *ins, char **output);
+int avm_stringify_count(AVM_Context *ctx, avm_size_t ins, avm_size_t len,
+                        char **output);
 
 
-int avm__error(AVM_Context* ctx, const char* fmt, ...);
+int avm__error(AVM_Context *ctx, const char *fmt, ...);
 
 #endif

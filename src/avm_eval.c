@@ -5,26 +5,31 @@
 #include "avm_util.h"
 
 
-typedef int (*Evaluator)(const AVM_Operation, AVM_Context*);
+typedef int (*Evaluator)(const AVM_Operation, AVM_Context *);
 
-static int check_out_of_bounds(avm_size_t address, avm_size_t size) {
-  if(((uint64_t) address + (uint64_t) size) > AVM_SIZE_MAX)
+static int check_out_of_bounds(avm_size_t address, avm_size_t size)
+{
+  if (((uint64_t) address + (uint64_t) size) > AVM_SIZE_MAX) {
     return 1;
-  else
+  } else {
     return 0;
+  }
 }
 
-static int push_call(AVM_Context* ctx, avm_size_t target) {
-  if(ctx->call_stack_size + 1 == AVM_SIZE_MAX)
+static int push_call(AVM_Context *ctx, avm_size_t target)
+{
+  if (ctx->call_stack_size + 1 == AVM_SIZE_MAX) {
     return avm__error(ctx, "Call stack overflow");
+  }
 
-  if(ctx->call_stack_cap == ctx->call_stack_size + 1){ // overflowing? resize
+  if (ctx->call_stack_cap == ctx->call_stack_size + 1) { // overflowing? resize
     size_t new_size = min(ctx->call_stack_cap * 2, AVM_SIZE_MAX);
     ctx->call_stack = my_crealloc(ctx->call_stack,
-        ctx->call_stack_cap * sizeof(avm_size_t), new_size * sizeof(avm_size_t));
+                                  ctx->call_stack_cap * sizeof(avm_size_t), new_size * sizeof(avm_size_t));
 
-    if(ctx->call_stack == NULL)
+    if (ctx->call_stack == NULL) {
       return avm__error(ctx, "Unable to reallocate stack of %d bytes", new_size);
+    }
 
     assert((avm_size_t) new_size == new_size);
     ctx->call_stack_cap = (avm_size_t) new_size;
@@ -37,7 +42,8 @@ static int push_call(AVM_Context* ctx, avm_size_t target) {
   return 0;
 }
 
-static int eval_error ( const AVM_Operation op, AVM_Context* ctx ) {
+static int eval_error ( const AVM_Operation op, AVM_Context *ctx )
+{
   return avm__error(ctx, "Invalid opcode 0x%.16x", op.value);
 }
 
@@ -57,22 +63,23 @@ static int eval_error ( const AVM_Operation op, AVM_Context* ctx ) {
  *    │⋮│
  *    └─┘
  */
-static int eval_load ( const AVM_Operation op, AVM_Context* ctx ) {
+static int eval_load ( const AVM_Operation op, AVM_Context *ctx )
+{
   avm_size_t size = op.size;
   avm_size_t address = op.address;
 
-  if(check_out_of_bounds(address, size))
+  if (check_out_of_bounds(address, size))
     return avm__error(ctx, "Unable to execute load from %x, size %x: out of bounds",
                       address, size);
 
-  for(avm_size_t idx = address; idx < size + address; ++idx){
+  for (avm_size_t idx = address; idx < size + address; ++idx) {
     avm_int data;
 
     int ret = avm_heap_get(ctx, &data, idx);
-    if(ret != 0) return ret; // avm_heap_get set the error code
+    if (ret != 0) { return ret; } // avm_heap_get set the error code
 
     ret = avm_stack_push(ctx, data);
-    if(ret != 0) return ret; // avm_stack_push set the error code
+    if (ret != 0) { return ret; } // avm_stack_push set the error code
   }
 
   return 0;
@@ -81,22 +88,23 @@ static int eval_load ( const AVM_Operation op, AVM_Context* ctx ) {
 /* Pops `size` items off the stack and places them on the heap
  * at the given location.
  */
-static int eval_store ( const AVM_Operation op, AVM_Context* ctx ) {
+static int eval_store ( const AVM_Operation op, AVM_Context *ctx )
+{
   avm_size_t size = op.size;
   avm_size_t address = op.address;
 
-  if(check_out_of_bounds(address, size))
+  if (check_out_of_bounds(address, size))
     return avm__error(ctx, "Unable to execute store to %x, size %x: out of bounds",
                       address, size);
 
-  for(avm_size_t idx = address; idx < size + address; ++idx) {
+  for (avm_size_t idx = address; idx < size + address; ++idx) {
     avm_int data;
 
     int ret = avm_stack_pop(ctx, &data);
-    if(ret != 0) return ret; // error string already set
+    if (ret != 0) { return ret; } // error string already set
 
     ret = avm_heap_set(ctx, data, idx);
-    if(ret != 0) return ret; // error string already set
+    if (ret != 0) { return ret; } // error string already set
   }
 
   return 0;
@@ -104,19 +112,22 @@ static int eval_store ( const AVM_Operation op, AVM_Context* ctx ) {
 
 /* Places the immediate value at the top of the sack
  */
-static int eval_push ( const AVM_Operation op, AVM_Context* ctx ) {
+static int eval_push ( const AVM_Operation op, AVM_Context *ctx )
+{
   avm_int data = ctx->memory[++ctx->ins];
   return avm_stack_push(ctx, data);
 }
 
-#define SIMPLE_BINOP(NAME, OP)                                         \
+#define SIMPLE_BINOP(NAME, OP) \
 static int eval_ ## NAME ( const AVM_Operation op, AVM_Context* ctx ) { \
-  avm_int a, b;                                                        \
-  if(avm_stack_pop(ctx, &a)) return 1;                                 \
-  if(avm_stack_pop(ctx, &b)) return 1;                                 \
-  if(avm_stack_push(ctx, OP)) return 1;                                \
-  return 0;                                                            \
+  avm_int a, b; \
+  if(avm_stack_pop(ctx, &a)) return 1; \
+  if(avm_stack_pop(ctx, &b)) return 1; \
+  if(avm_stack_push(ctx, OP)) return 1; \
+  return 0; \
 }
+
+// *INDENT-OFF*
 
 /* push(pop() + pop()) */
 SIMPLE_BINOP(add, a + b)
@@ -139,27 +150,35 @@ SIMPLE_BINOP(shr, a >> (b & 0x3F))
 /* push(pop() << pop()), rhs > 63 is defined as 0 */
 SIMPLE_BINOP(shl, a << (b & 0x3F))
 
+// *INDENT-ON*
+
 /* call(0xF00BA4) */
-static int eval_calli ( const AVM_Operation op, AVM_Context* ctx ) {
+static int eval_calli ( const AVM_Operation op, AVM_Context *ctx )
+{
   ctx->ins = op.target;
-  if(push_call(ctx, op.target))
+  if (push_call(ctx, op.target)) {
     return 1;
+  }
   return 0;
 }
 
 /* call(pop()) */
-static int eval_call ( const AVM_Operation op, AVM_Context* ctx ) {
+static int eval_call ( const AVM_Operation op, AVM_Context *ctx )
+{
   avm_int target;
-  if(avm_stack_pop(ctx, &target)) return 1;
+  if (avm_stack_pop(ctx, &target)) { return 1; }
   ctx->ins = (avm_size_t) target;
-  if(push_call(ctx, (avm_size_t) target))
+  if (push_call(ctx, (avm_size_t) target)) {
     return 1;
+  }
   return 0;
 }
 
-static int eval_ret ( const AVM_Operation op, AVM_Context* ctx ) {
-  if(ctx->call_stack_size == 0)
+static int eval_ret ( const AVM_Operation op, AVM_Context *ctx )
+{
+  if (ctx->call_stack_size == 0) {
     return avm__error(ctx, "Unable to return with no functions in the call stack");
+  }
 
   ctx->ins = ctx->call_stack[ctx->call_stack_size];
   ctx->call_stack_size -= 0;
@@ -168,10 +187,11 @@ static int eval_ret ( const AVM_Operation op, AVM_Context* ctx ) {
 }
 
 /* if(pop() == 0) goto 0xF00BA4 */
-static int eval_jmpez ( const AVM_Operation op, AVM_Context* ctx ) {
+static int eval_jmpez ( const AVM_Operation op, AVM_Context *ctx )
+{
   avm_int test;
-  if(avm_stack_pop(ctx, &test)) return 1;
-  if(test == 1) ctx->ins = op.target;
+  if (avm_stack_pop(ctx, &test)) { return 1; }
+  if (test == 1) { ctx->ins = op.target; }
   return 0;
 }
 
@@ -193,26 +213,30 @@ static const Evaluator opcode_evalutators[opcode_count] = {
   [avm_opc_jmpez] = &eval_jmpez
 };
 
-int eval(AVM_Context* ctx, avm_int* result) {
+int eval(AVM_Context *ctx, avm_int *result)
+{
   assert(ctx != NULL);
   assert(result != NULL);
   assert(ctx->initialized == _INITIALIZED_CONSTANT);
 
-  while(1) {
+  while (1) {
     AVM_Operation op;
-    avm_heap_get(ctx, (avm_int*) &op, ctx->ins);
+    avm_heap_get(ctx, (avm_int *) &op, ctx->ins);
 
-    if(op.kind == avm_opc_quit){
-      if(avm_stack_pop(ctx, result))
+    if (op.kind == avm_opc_quit) {
+      if (avm_stack_pop(ctx, result)) {
         return 1;
+      }
       return 0;
     }
 
-    if(op.kind >= opcode_count)
+    if (op.kind >= opcode_count) {
       op.kind = avm_opc_error;
+    }
 
-    if(opcode_evalutators[op.kind](op, ctx))
+    if (opcode_evalutators[op.kind](op, ctx)) {
       return 1;
+    }
 
     ++ctx->ins;
   }

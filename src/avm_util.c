@@ -5,33 +5,45 @@
 #include "avm_util.h"
 
 
-void* my_crealloc(void* buffer, size_t oldsize, size_t newsize) {
-  void* result = realloc(buffer, newsize);
+void *my_crealloc(void *buffer, size_t oldsize, size_t newsize)
+{
+  void *result = realloc(buffer, newsize);
 
-  if(newsize > oldsize && result != NULL) {
+  if (newsize > oldsize && result != NULL) {
     size_t grow_len = newsize - oldsize;
-    memset(((char*) result) + oldsize, 0, grow_len);
+    memset(((char *) result) + oldsize, 0, grow_len);
   }
 
   return result;
 }
 
-void* my_malloc(size_t size) { return malloc(size); }
-void* my_calloc(size_t count, size_t size) { return calloc(count, size); }
-void* my_realloc(void* buffer, size_t newsize) { return realloc(buffer, newsize); }
+void *my_malloc(size_t size)
+{
+  return malloc(size);
+}
+void *my_calloc(size_t count, size_t size)
+{
+  return calloc(count, size);
+}
+void *my_realloc(void *buffer, size_t newsize)
+{
+  return realloc(buffer, newsize);
+}
 
-size_t min(size_t a, size_t b) {
-  if(a < b) return a;
-  else return b;
+size_t min(size_t a, size_t b)
+{
+  if (a < b) { return a; }
+  else { return b; }
 }
 
 #define BUFFER_SIZE 4095
-char* read_file(FILE* file, size_t* len) {
+char *read_file(FILE *file, size_t *len)
+{
   char buffer[BUFFER_SIZE];
-  char* result = NULL;
+  char *result = NULL;
   size_t resultlen = 0;
 
-  while(1) {
+  while (1) {
     size_t amount_read = fread(buffer, 1, BUFFER_SIZE, file);
     size_t oldlen = resultlen;
     resultlen += amount_read;
@@ -40,7 +52,7 @@ char* read_file(FILE* file, size_t* len) {
 
     memcpy(result + oldlen, buffer, amount_read);
 
-    if(amount_read < BUFFER_SIZE){
+    if (amount_read < BUFFER_SIZE) {
       *len = resultlen;
       return result;
     }

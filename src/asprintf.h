@@ -8,7 +8,7 @@
  *
  * This is a simplified asprintf interface.  Returns NULL on error.
  */
-char * afmt(const char *fmt, ...);
+char *afmt(const char *fmt, ...);
 
 #include <stdarg.h>
 
