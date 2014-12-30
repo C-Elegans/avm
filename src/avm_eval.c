@@ -143,6 +143,8 @@ SIMPLE_BINOP(shl, a << (b & 0x3F))
 static int eval_calli ( const AVM_Operation op, AVM_Context *ctx )
 {
   ctx->ins = op.target;
+  ctx->ins -= 1;  // exec() increments it 1 later, compensate
+                  // Underflow is OK - it will overflow back immediately
   return push_call(ctx, op.target);
 }
 
@@ -152,6 +154,7 @@ static int eval_call ( const AVM_Operation op, AVM_Context *ctx )
   avm_int target;
   if (avm_stack_pop(ctx, &target)) { return 1; }
   ctx->ins = (avm_size_t) target;
+  ctx->ins -= 1;  // see eval_calli
   return push_call(ctx, (avm_size_t) target);
 }
 
@@ -173,6 +176,7 @@ static int eval_jmpez ( const AVM_Operation op, AVM_Context *ctx )
   avm_int test;
   if (avm_stack_pop(ctx, &test)) { return 1; }
   if (test == 1) { ctx->ins = op.target; }
+  ctx->ins -= 1;  // see eval_calli
   return 0;
 }
 
