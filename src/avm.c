@@ -136,20 +136,18 @@ int avm_heap_get(AVM_Context *ctx, avm_int *data, avm_size_t loc)
 int avm_heap_set(AVM_Context *ctx, avm_int data, avm_size_t loc)
 {
   if (loc >= ctx->memory_size) {
-    if (data == 0) { // pretend it's been written
-      return 0;
-    } else {
-      avm_size_t new_size = (avm_size_t) min(ctx->memory_size * 2, AVM_SIZE_MAX);
-      ctx->memory = my_crealloc(ctx->memory, ctx->memory_size * sizeof(avm_int),
-                                new_size * sizeof(avm_int));
-      if (ctx->memory == NULL) {
-        return avm__error(ctx, "unable to allocate more memory (%d bytes)", new_size);
-      }
+    if (data == 0) return 0;  // pretend it's been written
 
-      ctx->memory_size = new_size;
-      // recursivly double memory until enough is initialized
-      return avm_heap_set(ctx, data, loc);
+    avm_size_t new_size = (avm_size_t) min(ctx->memory_size * 2, AVM_SIZE_MAX);
+    ctx->memory = my_crealloc(ctx->memory, ctx->memory_size * sizeof(avm_int),
+                              new_size * sizeof(avm_int));
+    if (ctx->memory == NULL) {
+      return avm__error(ctx, "unable to allocate more memory (%d bytes)", new_size);
     }
+
+    ctx->memory_size = new_size;
+    // recursivly double memory until enough is initialized
+    return avm_heap_set(ctx, data, loc);
   }
 
   ctx->memory[loc] = data;

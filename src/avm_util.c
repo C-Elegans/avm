@@ -48,7 +48,7 @@ char *read_file(FILE *file, size_t *len)
     size_t oldlen = resultlen;
     resultlen += amount_read;
 
-    my_realloc(result, amount_read);
+    result = my_realloc(result, amount_read);
 
     memcpy(result + oldlen, buffer, amount_read);
 

@@ -9,11 +9,9 @@ typedef int (*Evaluator)(const AVM_Operation, AVM_Context *);
 
 static int check_out_of_bounds(avm_size_t address, avm_size_t size)
 {
-  if (((uint64_t) address + (uint64_t) size) > AVM_SIZE_MAX) {
-    return 1;
-  } else {
-    return 0;
-  }
+  if (((uint64_t) address + (uint64_t) size) > AVM_SIZE_MAX) return 1;
+
+  return 0;
 }
 
 static int push_call(AVM_Context *ctx, avm_size_t target)
@@ -25,7 +23,8 @@ static int push_call(AVM_Context *ctx, avm_size_t target)
   if (ctx->call_stack_cap == ctx->call_stack_size + 1) { // overflowing? resize
     size_t new_size = min(ctx->call_stack_cap * 2, AVM_SIZE_MAX);
     ctx->call_stack = my_crealloc(ctx->call_stack,
-                                  ctx->call_stack_cap * sizeof(avm_size_t), new_size * sizeof(avm_size_t));
+                                  ctx->call_stack_cap * sizeof(avm_size_t),
+                                  new_size * sizeof(avm_size_t));
 
     if (ctx->call_stack == NULL) {
       return avm__error(ctx, "Unable to reallocate stack of %d bytes", new_size);
