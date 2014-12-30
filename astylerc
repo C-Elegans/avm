@@ -1,0 +1,9 @@
+--style=1tbs
+--indent=spaces=2
+--pad-oper
+--pad-header
+--align-pointer=name
+--keep-one-line-statements
+--keep-one-line-blocks
+--max-code-length=80
+--mode=c
