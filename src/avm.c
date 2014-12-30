@@ -21,6 +21,7 @@ int main(int argv, char **args)
 
   AVM_Context ctx;
   int retcode = init_avm(&ctx, (void *) opc, ops_read);
+  my_free(opc);
   if (retcode) {
     printf("failed to initialize vm");
     return 1;
@@ -37,6 +38,7 @@ int main(int argv, char **args)
   avm_int eval_prog_ret = 0;
   if (eval(&ctx, &eval_prog_ret)) {
     printf("err: %s\n", ctx.error);
+    avm_free(ctx);
     return 1;
   }
 
