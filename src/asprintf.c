@@ -3,7 +3,8 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "avm_util.h"
+
+void *my_malloc(size_t size);
 
 char *afmt(const char *fmt, ...)
 {

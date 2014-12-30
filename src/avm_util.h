@@ -1,6 +1,7 @@
 #ifndef _AVM_UTIL_
 #define _AVM_UTIL_
 #include "asprintf.h"
+#include "avm_util.h"
 #include <stdio.h>
 
 void *my_malloc(size_t size);
@@ -14,5 +15,7 @@ size_t min(size_t a, size_t b);
 /* Reads the file until error or EOF
  */
 char *read_file(FILE *file, size_t *len);
+
+int asizet_add_bounds_check(avm_size_t address, avm_size_t size);
 
 #endif

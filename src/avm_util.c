@@ -2,7 +2,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "avm.h"
 #include "avm_util.h"
+
+int asizet_add_bounds_check(avm_size_t address, avm_size_t size)
+{
+  return (uint64_t) address + (uint64_t) size > AVM_SIZE_MAX;
+}
 
 
 void *my_crealloc(void *buffer, size_t oldsize, size_t newsize)

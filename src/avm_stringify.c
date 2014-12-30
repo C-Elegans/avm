@@ -133,11 +133,11 @@ int avm_stringify(AVM_Context *ctx, avm_size_t *ins, char **output)
 int avm_stringify_count(AVM_Context *ctx, avm_size_t ins, avm_size_t len,
                         char **output)
 {
-  if ((uint64_t) ins + (uint64_t) len > AVM_SIZE_MAX) {
+  if (asizet_add_bounds_check(ins, len)) {
     return avm__error(ctx, "Index %d and length %d are out of bounds", ins, len);
   }
 
-  *output = my_calloc(0, 0);
+  *output = NULL;
 
   for (avm_size_t i = ins; i < (ins + len);) {
     char *tmpout;
