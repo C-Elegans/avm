@@ -156,6 +156,11 @@ int avm_heap_set(AVM_Context *ctx, avm_int data, avm_size_t loc)
 
 int avm_stack_push(AVM_Context *ctx, avm_int data)
 {
+  if (ctx->stack_size == AVM_SIZE_MAX) {
+    // incrementing it now would jump to 0
+    return avm__error(ctx, "Stack overflow");
+  }
+
   if (ctx->stack_cap <= ++ctx->stack_size) {
     avm_size_t new_cap = (avm_size_t) min(ctx->stack_cap * 2, AVM_SIZE_MAX);
     ctx->stack = my_realloc(ctx->stack, new_cap * sizeof(avm_int));
@@ -166,6 +171,7 @@ int avm_stack_push(AVM_Context *ctx, avm_int data)
     ctx->stack_cap = new_cap;
   }
 
+  assert(ctx->stack_size != 0);
   ctx->stack[ctx->stack_size - 1] = data;
   return 0;
 }
