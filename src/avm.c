@@ -28,7 +28,7 @@ int main(int argv, char **args)
   }
 
   char *result;
-  if (avm_stringify_count(&ctx, 0, (avm_size_t) bytes_read, &result)) {
+  if (avm_stringify_count(&ctx, 0, (avm_size_t) ops_read, &result)) {
     printf("err: %s\n", ctx.error);
   }
   printf("%s\n", result);
