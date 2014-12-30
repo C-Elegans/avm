@@ -28,9 +28,7 @@ static int stringify_load(AVM_Context *ctx, avm_size_t *ins, char **out)
 static int stringify_store(AVM_Context *ctx, avm_size_t *ins, char **out)
 {
   AVM_Operation op;
-  if (avm_heap_get(ctx, (avm_int *) &op, *ins)) {
-    return 1;
-  }
+  if (avm_heap_get(ctx, (avm_int *) &op, *ins)) { return 1; }
 
   (*out) = afmt("store %db to 0x%.4x", op.size, op.address);
   if (*out == NULL) { return 1; }
@@ -40,9 +38,7 @@ static int stringify_store(AVM_Context *ctx, avm_size_t *ins, char **out)
 static int stringify_push(AVM_Context *ctx, avm_size_t *ins, char **out)
 {
   avm_int val;
-  if (avm_heap_get(ctx, &val, *ins + 1)) {
-    return 1;
-  }
+  if (avm_heap_get(ctx, &val, *ins + 1)) { return 1; }
 
   (*out) = afmt("push 0x%.16x (%d)", val, val);
   if (*out == NULL) { return 1; }
@@ -53,9 +49,7 @@ static int stringify_push(AVM_Context *ctx, avm_size_t *ins, char **out)
 static int stringify_calli(AVM_Context *ctx, avm_size_t *ins, char **out)
 {
   AVM_Operation op;
-  if (avm_heap_get(ctx, (avm_int *) &op, *ins)) {
-    return 1;
-  }
+  if (avm_heap_get(ctx, (avm_int *) &op, *ins)) { return 1; }
 
   (*out) = afmt("call 0x%.4x", op.target);
   if (*out == NULL) { return 1; }
@@ -65,6 +59,8 @@ static int stringify_calli(AVM_Context *ctx, avm_size_t *ins, char **out)
 static int stringify_error(AVM_Context *ctx, avm_size_t *ins, char **out)
 {
   AVM_Operation op;
+  if (avm_heap_get(ctx, (avm_int *) &op, *ins)) { return 1; }
+
   (*out) = afmt("error 0x%.16x", op.value);
   if (*out == NULL) { return 1; }
   return 0;
@@ -73,6 +69,8 @@ static int stringify_error(AVM_Context *ctx, avm_size_t *ins, char **out)
 static int stringify_jmpez(AVM_Context *ctx, avm_size_t *ins, char **out)
 {
   AVM_Operation op;
+  if (avm_heap_get(ctx, (avm_int *) &op, *ins)) { return 1; }
+
   (*out) = afmt("jumpez 0x%.4x", op.target);
   if (*out == NULL) { return 1; }
   return 0;
