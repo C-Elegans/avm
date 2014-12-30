@@ -6,37 +6,43 @@
 #include "avm.h"
 #include "avm_util.h"
 
-#define BUF_SIZE 4096
+#ifdef EXECUTABLE
 
 int main(int argv, char** args) {
-  static char opc[BUF_SIZE];
-  size_t bytes_read = fread(opc, 1, BUF_SIZE, stdin);
-  bytes_read = bytes_read / sizeof(AVM_Operation);
-
-  char dummy[1];
-  if(fread(dummy, 1, 1, stdin) != 0){
-    printf("buf size exceeded, yet there is still input\n");
-    exit(EXIT_FAILURE);
+  size_t bytes_read;
+  char* opc = read_file(stdin, &bytes_read);
+  if(opc == NULL) {
+    printf("unable to read input");
+    return 1;
   }
 
+  size_t ops_read = bytes_read / sizeof(AVM_Operation);
+
   AVM_Context ctx;
-  int retcode = init_avm(&ctx, (void*) opc, bytes_read);
-  if(retcode) printf("failed to initialize vm");
+  int retcode = init_avm(&ctx, (void*) opc, ops_read);
+  if(retcode){
+    printf("failed to initialize vm");
+    return 1;
+  }
+
   char* result;
-  avm_stringify_count(&ctx, 0,(avm_size_t) bytes_read, &result);
+  if(avm_stringify_count(&ctx, 0,(avm_size_t) bytes_read, &result))
     printf("err: %s\n", ctx.error);
-    printf("%s\n", result);
-    my_free(result);
+  printf("%s\n", result);
+  my_free(result);
+  my_free(ctx.error);
+
+  avm_int eval_prog_ret = 0;
+  if(eval(&ctx, &eval_prog_ret)){
+    printf("err: %s\n", ctx.error);
+    return 1;
+  }
 
   avm_free(ctx);
-  retcode = init_avm(&ctx, (void*) opc, bytes_read);
-  if(retcode) printf("failed to initialize vm");
-  avm_int out;
-  if(eval(&ctx, &out))
-    printf("err: %s\n", ctx.error);
-  avm_free(ctx);
-  return 0;
+  return (int) eval_prog_ret;
 }
+
+#endif  /* EXECUTABLE */
 
 
 /**
@@ -46,6 +52,7 @@ int main(int argv, char** args) {
  * Returns failure so that `return error(...);` is useful
  */
 int avm__error(AVM_Context* ctx, const char* fmt, ...) {
+  // black magic based on afmt()
   va_list ap;
   va_start(ap, fmt);
   if (vasprintf(&ctx->error, fmt, ap) < 0)
@@ -92,6 +99,8 @@ int init_avm(AVM_Context* ctx, const AVM_Operation* ops, size_t oplen) {
     return avm__error(ctx, "unable to allocate call stack", ctx->call_stack_cap);
 
   ctx->ins = 0;
+
+  ctx->initialized = _INITIALIZED_CONSTANT;
 
   return 0;
 }

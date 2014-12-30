@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <stdlib.h>
+#include <assert.h>
 #include "avm.h"
 #include "avm_util.h"
 
@@ -25,7 +26,8 @@ static int push_call(AVM_Context* ctx, avm_size_t target) {
     if(ctx->call_stack == NULL)
       return avm__error(ctx, "Unable to reallocate stack of %d bytes", new_size);
 
-    ctx->call_stack_cap = new_size;
+    assert((avm_size_t) new_size == new_size);
+    ctx->call_stack_cap = (avm_size_t) new_size;
   }
 
   ctx->call_stack[ctx->call_stack_size] = target;
@@ -192,6 +194,10 @@ static const Evaluator opcode_evalutators[opcode_count] = {
 };
 
 int eval(AVM_Context* ctx, avm_int* result) {
+  assert(ctx != NULL);
+  assert(result != NULL);
+  assert(ctx->initialized == _INITIALIZED_CONSTANT);
+
   while(1) {
     AVM_Operation op;
     avm_heap_get(ctx, (avm_int*) &op, ctx->ins);

@@ -1,11 +1,15 @@
 #ifndef _AVM_
 #define _AVM_
+#include <stdint.h>
+#include <stddef.h>
 
 typedef uint16_t avm_size_t;
 #define AVM_SIZE_MAX UINT16_MAX
 
 typedef uint64_t avm_int;
 #define AVM_INT_MAX UINT64_MAX
+
+#define _INITIALIZED_CONSTANT 0x84b3acc1
 
 typedef struct { // contents on the struct are internal
   avm_int *memory;
@@ -27,7 +31,7 @@ typedef struct { // contents on the struct are internal
   /* The instruction pointer */
   avm_size_t ins;
 
-  uint32_t padding_;
+  uint32_t initialized;
   char* error;
 } AVM_Context;
 
