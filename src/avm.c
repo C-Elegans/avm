@@ -49,6 +49,9 @@ int main(int argv, char **args)
 #endif  /* AVM_EXECUTABLE */
 
 
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wformat-nonliteral"
 /**
  * Sets an error code on the context with the given format
  * string and args.
@@ -66,6 +69,7 @@ int avm__error(AVM_Context *ctx, const char *fmt, ...)
   va_end(ap);
   return 1;
 }
+#pragma clang diagnostic pop
 
 
 /**

@@ -2,5 +2,5 @@
 CC=clang
 CFLAGS += -O3
 CFLAGS += -g3
+CFLAGS += -Weverything -Wno-unused-parameter
 CFLAGS += -std=gnu11
-CFLAGS += -static-libgcc

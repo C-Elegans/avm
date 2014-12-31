@@ -6,6 +6,9 @@
 
 void *my_malloc(size_t size);
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wformat-nonliteral"
+
 char *afmt(const char *fmt, ...)
 {
   va_list ap;
@@ -37,3 +40,5 @@ int vasprintf(char **strp, const char *fmt, va_list ap)
 
   return vsprintf(*strp, fmt, ap);
 }
+
+#pragma clang diagnostic pop
