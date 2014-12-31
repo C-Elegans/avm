@@ -1,0 +1,5 @@
+include_rules
+
+: foreach src/*.c |> $(CC) $(CFLAGS) @(CFLAGS) -c %f -o %o |> %B.o
+: *.o |> ar src %o %f |> libavm.a
+: *.o |> $(CC) -shared %f -o %o |> libavm.o

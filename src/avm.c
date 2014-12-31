@@ -6,7 +6,7 @@
 #include "avm.h"
 #include "avm_util.h"
 
-#ifdef EXECUTABLE
+#ifdef AVM_EXECUTABLE
 
 int main(int argv, char **args)
 {
@@ -46,7 +46,7 @@ int main(int argv, char **args)
   return (int) eval_prog_ret;
 }
 
-#endif  /* EXECUTABLE */
+#endif  /* AVM_EXECUTABLE */
 
 
 /**

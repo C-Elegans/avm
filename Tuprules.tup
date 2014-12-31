@@ -1,0 +1,6 @@
+.gitignore
+CC=clang
+CFLAGS += -O3
+CFLAGS += -g3
+CFLAGS += -std=gnu11
+CFLAGS += -static-libgcc
