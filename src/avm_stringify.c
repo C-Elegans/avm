@@ -147,7 +147,7 @@ int avm_stringify_count(AVM_Context *ctx, avm_size_t ins, avm_size_t len,
     }
 
     char *oldvalue = *output;
-    *output = afmt("%s\n%.4x.\t%s", oldvalue, op_idx, tmpout);
+    *output = afmt("%s\n%.4x:\t%s", oldvalue, op_idx, tmpout);
 
     my_free(oldvalue);
     my_free(tmpout);

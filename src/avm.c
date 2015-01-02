@@ -36,13 +36,17 @@ int main(int argv, char **args)
     return 1;
   }
 
+#ifdef AVM_DEBUG
   char *result;
   if (avm_stringify_count(&ctx, 0, (avm_size_t) memlen, &result)) {
     printf("err: %s\n", ctx.error);
   }
+  printf("════ code listing ════");
   printf("%s\n", result);
+  printf("══════════════════════\n\n");
   my_free(result);
   my_free(ctx.error);
+#endif
 
   avm_int eval_prog_ret = 0;
   if (avm_eval(&ctx, &eval_prog_ret)) {
