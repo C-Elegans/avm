@@ -81,6 +81,8 @@ static int stringify_jmpez(AVM_Context *ctx, avm_size_t *ins, char **out)
 SIMPLE_BINOP(add)
 SIMPLE_BINOP(sub)
 SIMPLE_BINOP(and)
+SIMPLE_BINOP(mul)
+SIMPLE_BINOP(div)
 SIMPLE_BINOP(or)
 SIMPLE_BINOP(xor)
 SIMPLE_BINOP(shr)
@@ -97,6 +99,8 @@ static const Stringifier stringifiers[opcode_count] = {
   [avm_opc_push ] = &stringify_push,
   [avm_opc_add  ] = &stringify_add,
   [avm_opc_sub  ] = &stringify_sub,
+  [avm_opc_mul  ] = &stringify_mul,
+  [avm_opc_div  ] = &stringify_div,
   [avm_opc_and  ] = &stringify_and,
   [avm_opc_or   ] = &stringify_or,
   [avm_opc_xor  ] = &stringify_xor,

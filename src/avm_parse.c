@@ -46,6 +46,8 @@ static int try_lex_operation (const char **input, Token *result)
     "push",
     "add",
     "sub",
+    "mul",
+    "div",
     "and",
     "or",
     "xor",

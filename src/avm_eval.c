@@ -111,6 +111,12 @@ SIMPLE_BINOP(add, a + b)
 /* push(pop() - pop()) */
 SIMPLE_BINOP(sub, a - b)
 
+/* push(pop() * pop()) */
+SIMPLE_BINOP(mul, a * b)
+
+/* push(pop() / pop()), n/0 = n */
+SIMPLE_BINOP(div, a / (b + (b == 0)))
+
 /* push(pop() & pop()) */
 SIMPLE_BINOP(and, a & b)
 
@@ -177,6 +183,8 @@ static const Evaluator opcode_evalutators[opcode_count] = {
   [avm_opc_add  ] = &eval_add,
   [avm_opc_sub  ] = &eval_sub,
   [avm_opc_and  ] = &eval_and,
+  [avm_opc_mul  ] = &eval_mul,
+  [avm_opc_div  ] = &eval_div,
   [avm_opc_or   ] = &eval_or,
   [avm_opc_xor  ] = &eval_xor,
   [avm_opc_shr  ] = &eval_shr,

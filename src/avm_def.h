@@ -8,6 +8,8 @@ enum {
   avm_opc_push,
   avm_opc_add,
   avm_opc_sub,
+  avm_opc_mul,
+  avm_opc_div,
   avm_opc_and,
   avm_opc_or,
   avm_opc_xor,
