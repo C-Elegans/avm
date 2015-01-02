@@ -55,12 +55,13 @@ char *read_file(FILE *file, size_t *len)
     size_t oldlen = resultlen;
     resultlen += amount_read;
 
-    result = my_realloc(result, resultlen);
+    result = my_realloc(result, resultlen + 1);
 
     memcpy(result + oldlen, buffer, amount_read);
 
     if (amount_read < BUFFER_SIZE) {
       *len = resultlen;
+      result[resultlen] = '\0';
       return result;
     }
   }

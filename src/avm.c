@@ -18,18 +18,26 @@ int main(int argv, char **args)
     return 1;
   }
 
-  size_t ops_read = bytes_read / sizeof(AVM_Operation);
+  avm_int *memory;
+  char* error;
+  size_t memlen;
+  if(avm_parse(opc, &memory, &error, &memlen)) {
+    printf("parse error: %s\n", error);
+    my_free(memory);
+    return 1;
+  }
 
   AVM_Context ctx;
-  int retcode = avm_init(&ctx, (void *) opc, ops_read);
+  int retcode = avm_init(&ctx, (void *) memory, memlen);
   my_free(opc);
+  my_free(memory);
   if (retcode) {
-    printf("failed to initialize vm");
+    printf("failed to initialize vm\n");
     return 1;
   }
 
   char *result;
-  if (avm_stringify_count(&ctx, 0, (avm_size_t) ops_read, &result)) {
+  if (avm_stringify_count(&ctx, 0, (avm_size_t) memlen, &result)) {
     printf("err: %s\n", ctx.error);
   }
   printf("%s\n", result);

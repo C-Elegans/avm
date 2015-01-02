@@ -12,6 +12,8 @@ typedef uint64_t avm_int;
 
 typedef struct AVM_Context_s AVM_Context;
 
+/* 0 is returned on success, 1 for failure */
+
 int  avm_init(AVM_Context *ctx, const avm_int *initial_mem, size_t oplen);
 void avm_free(AVM_Context *ctx);
 
@@ -28,5 +30,6 @@ int avm_stringify(AVM_Context *ctx, avm_size_t *ins, char **output);
 int avm_stringify_count(AVM_Context *ctx, avm_size_t ins, avm_size_t len,
                         char **output);
 
+int avm_parse(const char *input, avm_int **output, char **error, size_t *outputlen);
 
-#endif /* _AVM_H_ */
+#endif /* _AVM_H */

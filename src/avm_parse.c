@@ -18,7 +18,7 @@ typedef struct {
 
   union {
     AVM_Opcode opc;
-    uint64_t value;
+    avm_int value;
     char *message;
   };
 } Token;
@@ -32,7 +32,7 @@ static void skip_whitespace (const char **input)
 
 static void continue_until_newline (const char **input)
 {
-  while (*input[0] != '\n' || *input[0] != '\0') {
+  while (*input[0] != '\n' && *input[0] != '\0') {
     *input += 1;
   }
 }
@@ -77,23 +77,28 @@ static int try_lex_operation (const char **input, Token *result)
     operation[oplen] = '\0'; // always have a trailing null
   }
 
-  if (oplen == 0) { return 0; }
+  if (oplen == 0) { 
+    my_free(operation);
+    return 0;
+  }
 
   for (AVM_Opcode i = 0; i < opcode_count; ++i) {
     if (strcmp(str_to_opcode[i], operation) == 0) {
       *result = (Token) { .type = tt_operation, .opc = i };
+      my_free(operation);
       return 1;
     }
   }
 
   *result = (Token) { .type = tt_error, .message = "unkown operation" };
+  my_free(operation);
   return 1;
 }
 
 static int try_lex_num (const char **input, Token *result)
 {
-  avm_size_t target;
-  int len = sscanf(*input, "%x", &target);
+  avm_int target;
+  int len = sscanf(*input, "%lx", &target);
   if (len == 1) {
     *result = (Token) { .type = tt_num, .value = target };
     *input += len;
@@ -135,10 +140,10 @@ static int lex_input(const char **input, Token *result)
          try_lex_eof(input, result);
 }
 
-int avm_parse(const char *input, avm_int **output, char *error)
+int avm_parse(const char *input, avm_int **output, char **error, size_t *outputlen)
 {
   const char *input_var = input;
-  avm_size_t memory_loc = 0;
+  size_t memory_loc = 0;
   Token nextTok;
 
   *output = my_calloc(SLACK_SIZE, sizeof(avm_int));
@@ -148,13 +153,13 @@ int avm_parse(const char *input, avm_int **output, char *error)
     if (nextTok.type == tt_eof) { return 0; }
 
     if (nextTok.type == tt_error) {
-      error = nextTok.message;
+      *error = nextTok.message;
       return 1;
     }
 
     if (nextTok.type == tt_label) {
       if (nextTok.value > AVM_SIZE_MAX) {
-        error = "label address is out of bounds";
+        *error = "label address is out of bounds";
         return 1;
       }
 
@@ -167,29 +172,29 @@ int avm_parse(const char *input, avm_int **output, char *error)
         size_t newcap = memorycap + SLACK_SIZE;
         *output = my_crealloc(*output, memorycap * sizeof(avm_int), newcap * sizeof(avm_int));
         if (*output == NULL) {
-          error = "Allocation failed";
+          *error = "Allocation failed";
           return 1;
         }
         memorycap = newcap;
       }
 
       if (nextTok.opc == avm_opc_error) {
-        *output[memory_loc] = nextTok.value;
+        (*output)[memory_loc] = nextTok.value;
         memory_loc += 1;
       } else if (nextTok.opc == avm_opc_load || nextTok.opc == avm_opc_store) {
         Token size;
         Token address;
         if (!lex_input(&input_var, &size) ||
-            size.type != tt_num) { error = "expected size"; return 1; }
+            size.type != tt_num) { *error = "expected size"; return 1; }
         if (!lex_input(&input_var, &address) ||
-            address.type != tt_num) { error = "expected address"; return 1; }
+            address.type != tt_num) { *error = "expected address"; return 1; }
 
         if (size.value > (1 << 24) || address.value > AVM_SIZE_MAX) {
-          error = "size or value out of bounds";
+          *error = "size or value out of bounds";
           return 1;
         }
 
-        *output[memory_loc] = ((AVM_Operation) {
+        (*output)[memory_loc] = ((AVM_Operation) {
           .kind = nextTok.opc,
           .size = (avm_size_t) size.value,
           .address = (avm_size_t) address.value
@@ -199,9 +204,9 @@ int avm_parse(const char *input, avm_int **output, char *error)
       } else if (nextTok.opc == avm_opc_calli) {
         Token address;
         if (!lex_input(&input_var, &address) ||
-            address.type != tt_num) { error = "expected address"; return 1; }
+            address.type != tt_num) { *error = "expected address"; return 1; }
 
-        *output[memory_loc] = ((AVM_Operation) {
+        (*output)[memory_loc] = ((AVM_Operation) {
           .kind = nextTok.opc,
           .address = (avm_size_t) address.value
         }).value;
@@ -210,26 +215,27 @@ int avm_parse(const char *input, avm_int **output, char *error)
       } else if (nextTok.opc == avm_opc_push) {
         Token value;
         if (!lex_input(&input_var, &value) ||
-            value.type != tt_num) { error = "expected value to push"; return 1; }
+            value.type != tt_num) { *error = "expected value to push"; return 1; }
 
-        *output[memory_loc] = ((AVM_Operation) { .kind = avm_opc_push }).value;
-        *output[memory_loc + 1] = value.value;
+        (*output)[memory_loc] = ((AVM_Operation) { .kind = avm_opc_push }).value;
+        (*output)[memory_loc + 1] = value.value;
 
         memory_loc += 2;
       } else if (nextTok.opc == avm_opc_error) {
-        *output[memory_loc] = nextTok.value;
+        (*output)[memory_loc] = nextTok.value;
         memory_loc += 1;
       } else if (nextTok.opc < opcode_count) {
-        *output[memory_loc] = ((AVM_Operation) { .kind = nextTok.opc }).value;
+        (*output)[memory_loc] = ((AVM_Operation) { .kind = nextTok.opc }).value;
         memory_loc += 1;
       } else {
         printf("Internal error: WTF");
         exit(EXIT_FAILURE);
       }
     } else if (nextTok.type == tt_eof) {
+      *outputlen = memory_loc;
       return 0;
     } else {
-      error = "unknown error";
+      *error = "unknown error";
       return 1;
     }
 
