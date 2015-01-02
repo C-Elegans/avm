@@ -43,19 +43,6 @@ static int eval_error ( const AVM_Operation op, AVM_Context *ctx )
 
 /* Extract the amount of memory specified in `size` and push it to
  * the stack, lowest byte first.
- *
- * ┌─┬─┬─┬─┐
- * │1│2│3│4│
- * └─┴─┴─┴─┘
- *    \_/
- *     ↓
- *    ┌─┐
- *    │2│
- *    ├─┤
- *    │3│
- *    ├─┤
- *    │⋮│
- *    └─┘
  */
 static int eval_load ( const AVM_Operation op, AVM_Context *ctx )
 {
