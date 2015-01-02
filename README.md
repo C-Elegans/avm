@@ -38,8 +38,10 @@ instructions and jumps to place more than one word on the stack.
        │⋮│
        └─┘
 
-`add`, `sub`, `mul`, `div`, `and`, `or`, `xor`, `shr`, and `shl` all do `pop()
-OP pop()`, as is expected of a stack machine. Nothing hard or clever here.
+`add`, `sub`, `mul`, `and`, `or`, `xor`, `shr`, and `shl` all do `pop() OP
+pop()`, as is expected of a stack machine. Nothing hard or clever here.
+
+`div` is a bit different, it divides by `1` if the rhs is `0`.
 
 The machine has a second stack for function calls so that stack traces are
 easy; `call` and `calli` place addresses on this stack. `call` unconditionally
