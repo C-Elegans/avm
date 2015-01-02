@@ -41,7 +41,7 @@ static int stringify_push(AVM_Context *ctx, avm_size_t *ins, char **out)
   avm_int val;
   if (avm_heap_get(ctx, &val, *ins + 1)) { return 1; }
 
-  (*out) = afmt("push\t0x%.16x (dec. %d)", val, val);
+  (*out) = afmt("push\t0x%.16lx (dec. %ld)", val, val);
   if (*out == NULL) { return 1; }
   *ins += 1;
   return 0;
@@ -62,7 +62,7 @@ static int stringify_error(AVM_Context *ctx, avm_size_t *ins, char **out)
   AVM_Operation op;
   if (avm_heap_get(ctx, (avm_int *) &op, *ins)) { return 1; }
 
-  (*out) = afmt("error\t0x%.16x", op.value);
+  (*out) = afmt("error\t0x%.16lx", op.value);
   if (*out == NULL) { return 1; }
   return 0;
 }
