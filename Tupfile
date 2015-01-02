@@ -1,4 +1,4 @@
 include_rules
 
 : foreach src/*.c |> $(CC) $(CFLAGS) @(CFLAGS) -c %f -o %o |> %B.o
-: *.o |> $(CC) %f -o %o |> avm
+: *.o |> $(CC) @(CLFLAGS) %f -o %o |> avm
