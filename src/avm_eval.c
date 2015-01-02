@@ -151,6 +151,7 @@ static int eval_call ( const AVM_Operation op, AVM_Context *ctx )
   avm_int target;
   avm_size_t caller = ctx->ins;
   if (avm_stack_pop(ctx, &target)) { return 1; }
+  ctx->ins = target;
   ctx->ins -= 1;  // see eval_calli
   return push_call(ctx, (AVM_Stack_Frame) { .target = (avm_size_t) target,
       .caller = caller });
