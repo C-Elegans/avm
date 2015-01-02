@@ -4,6 +4,7 @@
 #include <string.h>
 #include "avm.h"
 #include "avm_util.h"
+#include "avm_def.h"
 
 int asizet_add_bounds_check(avm_size_t address, avm_size_t size)
 {
@@ -64,3 +65,19 @@ char *read_file(FILE *file, size_t *len)
     }
   }
 }
+
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wformat-nonliteral"
+int avm__error(AVM_Context *ctx, const char *fmt, ...)
+{
+  // black magic based on afmt()
+  va_list ap;
+  va_start(ap, fmt);
+  if (vasprintf(&ctx->error, fmt, ap) < 0) {
+    ctx->error = NULL;
+  }
+  va_end(ap);
+  return 1;
+}
+#pragma clang diagnostic pop

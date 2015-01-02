@@ -3,6 +3,7 @@
 #include <assert.h>
 #include "avm.h"
 #include "avm_util.h"
+#include "avm_def.h"
 
 
 typedef int (*Evaluator)(const AVM_Operation, AVM_Context *);
@@ -20,7 +21,8 @@ static int push_call(AVM_Context *ctx, avm_size_t target)
                                   new_size * sizeof(avm_size_t));
 
     if (ctx->call_stack == NULL) {
-      return avm__error(ctx, "Unable to reallocate call stack of %d elements", new_size);
+      return avm__error(ctx, "Unable to reallocate call stack of %d elements",
+                        new_size);
     }
 
     assert((avm_size_t) new_size == new_size);
@@ -142,10 +144,10 @@ SIMPLE_BINOP(shl, a << (b & 0x3F))
 /* call(0xF00BA4) */
 static int eval_calli ( const AVM_Operation op, AVM_Context *ctx )
 {
-  ctx->ins = op.target;
+  ctx->ins = op.address;
   ctx->ins -= 1;  // exec() increments it 1 later, compensate
-                  // Underflow is OK - it will overflow back immediately
-  return push_call(ctx, op.target);
+  // Underflow is OK - it will overflow back immediately
+  return push_call(ctx, op.address);
 }
 
 /* call(pop()) */
@@ -175,7 +177,7 @@ static int eval_jmpez ( const AVM_Operation op, AVM_Context *ctx )
 {
   avm_int test;
   if (avm_stack_pop(ctx, &test)) { return 1; }
-  if (test == 1) { ctx->ins = op.target; }
+  if (test == 1) { ctx->ins = op.address; }
   ctx->ins -= 1;  // see eval_calli
   return 0;
 }
@@ -202,11 +204,10 @@ static const Evaluator opcode_evalutators[opcode_count] = {
 #include "avm_debug.c"
 #endif
 
-int eval(AVM_Context *ctx, avm_int *result)
+int avm_eval(AVM_Context *ctx, avm_int *result)
 {
   assert(ctx != NULL);
   assert(result != NULL);
-  assert(ctx->initialized == _INITIALIZED_CONSTANT);
 
   while (1) {
     AVM_Operation op;

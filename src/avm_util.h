@@ -1,5 +1,5 @@
-#ifndef _AVM_UTIL_
-#define _AVM_UTIL_
+#ifndef _AVM_UTIL_H
+#define _AVM_UTIL_H
 #include "asprintf.h"
 #include "avm_util.h"
 #include <stdio.h>
@@ -17,5 +17,12 @@ size_t min(size_t a, size_t b);
 char *read_file(FILE *file, size_t *len);
 
 int asizet_add_bounds_check(avm_size_t address, avm_size_t size);
+
+/* Sets an error code on the context with the given format
+ * string and args.
+ *
+ * Returns failure so that `return error(...);` is useful
+ */
+int avm__error(AVM_Context *ctx, const char *fmt, ...);
 
 #endif

@@ -2,10 +2,14 @@
 #include <stdlib.h>
 #include "avm.h"
 #include "avm_util.h"
+#include "avm_def.h"
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-function"
 
 static void dump_ins(AVM_Context *ctx)
 {
-  char* ins_text;
+  char *ins_text;
   avm_size_t ins = ctx->ins;
   // don't really care about errors here
   /* discard */ avm_stringify(ctx, &ins, &ins_text);
@@ -24,3 +28,5 @@ static void dump_stack(AVM_Context *ctx)
   }
   printf("└───── end stack dump ─────\n");
 }
+
+#pragma clang diagnostic pop

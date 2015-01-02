@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "avm.h"
 #include "avm_util.h"
+#include "avm_def.h"
 
 
 typedef int (*Stringifier)(AVM_Context *, avm_size_t *ins, char **);
@@ -51,7 +52,7 @@ static int stringify_calli(AVM_Context *ctx, avm_size_t *ins, char **out)
   AVM_Operation op;
   if (avm_heap_get(ctx, (avm_int *) &op, *ins)) { return 1; }
 
-  (*out) = afmt("call\t0x%.4x", op.target);
+  (*out) = afmt("call\t0x%.4x", op.address);
   if (*out == NULL) { return 1; }
   return 0;
 }
@@ -71,7 +72,7 @@ static int stringify_jmpez(AVM_Context *ctx, avm_size_t *ins, char **out)
   AVM_Operation op;
   if (avm_heap_get(ctx, (avm_int *) &op, *ins)) { return 1; }
 
-  (*out) = afmt("jumpez\t0x%.4x", op.target);
+  (*out) = afmt("jumpez\t0x%.4x", op.address);
   if (*out == NULL) { return 1; }
   return 0;
 }
