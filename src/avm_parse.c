@@ -226,6 +226,11 @@ int avm_parse(const char *input, avm_int **output, char *error)
         printf("Internal error: WTF");
         exit(EXIT_FAILURE);
       }
+    } else if (nextTok.type == tt_eof) {
+      return 0;
+    } else {
+      error = "unknown error";
+      return 1;
     }
 
     continue_until_newline(&input_var);
