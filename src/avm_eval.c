@@ -8,7 +8,7 @@
 
 typedef int (*Evaluator)(const AVM_Operation, AVM_Context *);
 
-static int push_call(AVM_Context *ctx, avm_size_t target)
+static int push_call(AVM_Context *ctx, AVM_Stack_Frame frame)
 {
   if (ctx->call_stack_size + 1 == AVM_SIZE_MAX) {
     return avm__error(ctx, "Call stack overflow");
@@ -29,7 +29,7 @@ static int push_call(AVM_Context *ctx, avm_size_t target)
     ctx->call_stack_cap = (avm_size_t) new_size;
   }
 
-  ctx->call_stack[ctx->call_stack_size] = target;
+  ctx->call_stack[ctx->call_stack_size] = frame;
 
   ctx->call_stack_size += 1;
 
@@ -137,20 +137,23 @@ SIMPLE_BINOP(shl, a << (b & 0x3F))
 /* call(0xF00BA4) */
 static int eval_calli ( const AVM_Operation op, AVM_Context *ctx )
 {
+  avm_size_t caller = ctx->ins;
   ctx->ins = op.address;
   ctx->ins -= 1;  // exec() increments it 1 later, compensate
   // Underflow is OK - it will overflow back immediately
-  return push_call(ctx, op.address);
+  return push_call(ctx, (AVM_Stack_Frame) { .target = op.address,
+      .caller = caller });
 }
 
 /* call(pop()) */
 static int eval_call ( const AVM_Operation op, AVM_Context *ctx )
 {
   avm_int target;
+  avm_size_t caller = ctx->ins;
   if (avm_stack_pop(ctx, &target)) { return 1; }
-  ctx->ins = (avm_size_t) target;
   ctx->ins -= 1;  // see eval_calli
-  return push_call(ctx, (avm_size_t) target);
+  return push_call(ctx, (AVM_Stack_Frame) { .target = (avm_size_t) target,
+      .caller = caller });
 }
 
 static int eval_ret ( const AVM_Operation op, AVM_Context *ctx )
@@ -159,7 +162,7 @@ static int eval_ret ( const AVM_Operation op, AVM_Context *ctx )
     return avm__error(ctx, "Unable to return with no functions in the call stack");
   }
 
-  ctx->ins = ctx->call_stack[ctx->call_stack_size];
+  ctx->ins = ctx->call_stack[ctx->call_stack_size].caller;
   ctx->call_stack_size -= 0;
 
   return 0;

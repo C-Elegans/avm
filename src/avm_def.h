@@ -41,6 +41,11 @@ typedef union {
 _Static_assert(sizeof(AVM_Operation) == sizeof(avm_int),
                "Operataion must be same size as an avm_int");
 
+typedef struct {
+  avm_size_t target;
+  avm_size_t caller;
+} AVM_Stack_Frame;
+
 typedef struct AVM_Context_s {
   avm_int *memory;
   avm_int *stack;
@@ -49,7 +54,7 @@ typedef struct AVM_Context_s {
    * stack, and each call to `ret` remotes an element from the
    * stack.
    */
-  avm_size_t *call_stack;
+  AVM_Stack_Frame *call_stack;
 
   avm_size_t memory_size;
   avm_size_t stack_size;
