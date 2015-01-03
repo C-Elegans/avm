@@ -52,8 +52,10 @@ instructions and jumps to place more than one word on the stack.
        │⋮│
        └─┘
 
-`add`, `sub`, `mul`, `and`, `or`, `xor`, `shr`, and `shl` all do `pop() OP
-pop()`, as is expected of a stack machine. Nothing hard or clever here.
+`add`, `sub`, `mul`, `and`, `or`, `xor`, `shr`, and `shl` are nearly typical
+stack machine instructions. They are something like `a = pop(); b = pop(); b OP
+a`, where the second pop is the lhs. This tends to be conceptually simpler and
+is more useful.
 
 `div` is a bit different, it divides by `1` if the rhs is `0`.
 
@@ -70,6 +72,8 @@ this can be used for result passing.
 `quit` pops an element off the stack and returns it to the outside calling
 program.
 
+`dup` duplicates the top element of the stack.
+
 The layout of an operation is stable and can be relied upon. It is as follows:
 
     AVM_Opcode kind : 8;
@@ -78,6 +82,9 @@ The layout of an operation is stable and can be relied upon. It is as follows:
 
 The C standard decrees that the bit layout is undefined, but most compilers
 don't try to create needless problems, so it should be fine.
+
+Since any memory address can be executed, it's possible to perform runtime code
+generation with bitshifts and the like.
 
 ## Bugs
 
