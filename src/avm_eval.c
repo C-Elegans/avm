@@ -181,6 +181,15 @@ static int eval_jmpez ( const AVM_Operation op, AVM_Context *ctx )
   return 0;
 }
 
+static int eval_dup ( const AVM_Operation op, AVM_Context *ctx )
+{
+  avm_int value;
+  if (avm_stack_pop(ctx, &value)) { return 1; }
+  if (avm_stack_push(ctx, value)) { return 1; }
+  if (avm_stack_push(ctx, value)) { return 1; }
+  return 0;
+}
+
 static const Evaluator opcode_evalutators[opcode_count] = {
   [avm_opc_error] = &eval_error,
   [avm_opc_load ] = &eval_load,
@@ -198,7 +207,8 @@ static const Evaluator opcode_evalutators[opcode_count] = {
   [avm_opc_calli] = &eval_calli,
   [avm_opc_call ] = &eval_call,
   [avm_opc_ret  ] = &eval_ret,
-  [avm_opc_jmpez] = &eval_jmpez
+  [avm_opc_jmpez] = &eval_jmpez,
+  [avm_opc_dup  ] = &eval_dup,
 };
 
 #ifdef AVM_DEBUG

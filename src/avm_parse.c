@@ -58,6 +58,7 @@ static int try_lex_operation (const char **input, Token *result)
     "ret",
     "jmpez",
     "quit",
+    "dup",
   };
 
   char *operation = my_malloc(SLACK_SIZE);

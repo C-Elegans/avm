@@ -20,6 +20,7 @@ enum {
   avm_opc_ret,
   avm_opc_jmpez,  /* Jumps to the `target` if the top of the stack is `1` */
   avm_opc_quit,
+  avm_opc_dup,
 
   opcode_count
 };

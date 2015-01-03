@@ -90,6 +90,7 @@ SIMPLE_BINOP(shl)
 SIMPLE_BINOP(ret)
 SIMPLE_BINOP(call)
 SIMPLE_BINOP(quit)
+SIMPLE_BINOP(dup)
 // *INDENT-ON*
 
 static const Stringifier stringifiers[opcode_count] = {
@@ -111,6 +112,7 @@ static const Stringifier stringifiers[opcode_count] = {
   [avm_opc_ret  ] = &stringify_ret,
   [avm_opc_jmpez] = &stringify_jmpez,
   [avm_opc_quit ] = &stringify_quit,
+  [avm_opc_dup ] = &stringify_dup,
 };
 
 /* Stringifies the instruction in memory at the given
