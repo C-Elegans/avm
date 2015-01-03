@@ -174,7 +174,7 @@ static int eval_jmpez ( const AVM_Operation op, AVM_Context *ctx )
 {
   avm_int test;
   if (avm_stack_pop(ctx, &test)) { return 1; }
-  if (test == 1) {
+  if (test == 0) {
     ctx->ins = op.address;
     ctx->ins -= 1;  // see eval_calli
   }
