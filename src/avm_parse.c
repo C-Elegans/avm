@@ -161,7 +161,7 @@ int avm_parse(const char *input, avm_int **output, char **error, size_t *outputl
 
   while (lex_input(&input_var, &nextTok)) {
     if (memory_loc + 2 >= memorycap) { // resize
-      size_t newcap = memorycap + SLACK_SIZE;
+      size_t newcap = memory_loc + SLACK_SIZE;
       *output = my_crealloc(*output, memorycap * sizeof(avm_int), newcap * sizeof(avm_int));
       if (*output == NULL) {
         *error = afmt("%d: Allocation failed\n", input_var - input);
@@ -169,9 +169,6 @@ int avm_parse(const char *input, avm_int **output, char **error, size_t *outputl
       }
       memorycap = newcap;
     }
-
-
-    if (nextTok.type == tt_eof) { return 0; }
 
     if (nextTok.type == tt_error) {
       *error = afmt("%d: %s", input_var - input, nextTok.message);
@@ -183,6 +180,7 @@ int avm_parse(const char *input, avm_int **output, char **error, size_t *outputl
       }
 
       memory_loc = (avm_size_t) nextTok.value;
+      skip_whitespace(&input_var); // do not continue to newline
       continue;
     } else if (nextTok.type == tt_operation) {
       if (nextTok.opc == avm_opc_error) {
@@ -262,5 +260,6 @@ int avm_parse(const char *input, avm_int **output, char **error, size_t *outputl
     skip_whitespace(&input_var);
   }
 
-  return 0;
+  *error = afmt("%d: unknown error\n", input_var - input);
+  return 1;
 }
