@@ -213,7 +213,8 @@ int avm_parse(const char *input, avm_int **output, char **error, size_t *outputl
         }).value;
 
         memory_loc += 1;
-      } else if (nextTok.opc == avm_opc_calli) {
+      } else if (nextTok.opc == avm_opc_calli ||
+          nextTok.opc == avm_opc_jmpez) {
         Token address;
         if (!lex_input(&input_var, &address) ||
             address.type != tt_num) {
