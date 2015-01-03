@@ -23,7 +23,9 @@ int main(int argv, char **args)
   size_t memlen;
   if(avm_parse(opc, &memory, &error, &memlen)) {
     printf("parse error: %s\n", error);
+    my_free(opc);
     my_free(memory);
+    my_free(error);
     return 1;
   }
 
