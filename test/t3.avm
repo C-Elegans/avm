@@ -1,0 +1,15 @@
+push 7
+call
+push 0
+quit
+
+7:
+  push a
+  call
+
+a:
+  push d
+  call
+
+d:
+  ret

@@ -1,0 +1,12 @@
+push F
+push F
+mul
+call
+quit
+
+e1:
+  push 1
+  push 2
+  jmpez FF
+  ret
+

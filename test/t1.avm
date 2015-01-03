@@ -1,0 +1,6 @@
+push e1
+call
+
+e1:
+  push 0
+  quit

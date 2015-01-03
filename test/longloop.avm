@@ -1,0 +1,13 @@
+push 10000000
+
+2:
+  push 1
+  sub
+  dup
+  jmpez 1F
+  push 0
+  jmpez 2
+
+1F:
+  push 0
+  quit
