@@ -97,8 +97,8 @@ static int eval_push ( const AVM_Operation op, AVM_Context *ctx )
 #define SIMPLE_BINOP(NAME, OP) \
 static int eval_ ## NAME ( const AVM_Operation op, AVM_Context* ctx ) { \
   avm_int a, b; \
-  if(avm_stack_pop(ctx, &a)) return 1; \
   if(avm_stack_pop(ctx, &b)) return 1; \
+  if(avm_stack_pop(ctx, &a)) return 1; \
   if(avm_stack_push(ctx, OP)) return 1; \
   return 0; \
 }
