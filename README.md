@@ -4,6 +4,20 @@ AVM is a personal project created with the goal of learning C. It includes a
 parser for the simple language it runs, a pretty-printer, and easy debugging
 facilities.
 
+```
+push F
+push F
+mul
+call
+quit
+
+e1:
+  push 1
+  push 2
+  jmpez FF
+  ret
+```
+
 [Tup][tupsite] is used to build the project because Make is too weird. Building
 is easy: just run `tup` in the main directory. The only dependencies are a
 recent gcc or clang. It probably works best with clang, I can't be bothered to
