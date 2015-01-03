@@ -14,11 +14,11 @@ static int push_call(AVM_Context *ctx, AVM_Stack_Frame frame)
     return avm__error(ctx, "Call stack overflow");
   }
 
-  if (ctx->call_stack_cap == ctx->call_stack_size + 1) { // overflowing? resize
+  if (ctx->call_stack_cap <= ctx->call_stack_size + 1) { // overflowing? resize
     size_t new_size = min(ctx->call_stack_cap * 2, AVM_SIZE_MAX);
     ctx->call_stack = my_crealloc(ctx->call_stack,
-                                  ctx->call_stack_cap * sizeof(avm_size_t),
-                                  new_size * sizeof(avm_size_t));
+                                  ctx->call_stack_cap * sizeof(AVM_Stack_Frame),
+                                  new_size * sizeof(AVM_Stack_Frame));
 
     if (ctx->call_stack == NULL) {
       return avm__error(ctx, "Unable to reallocate call stack of %d elements",

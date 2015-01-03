@@ -98,7 +98,7 @@ int avm_init(AVM_Context *ctx, const avm_int *initial_mem, size_t oplen)
 
   ctx->call_stack_size = 0;
   ctx->call_stack_cap = INITIAL_CALLSTACK_SIZE;
-  ctx->call_stack = my_malloc(INITIAL_CALLSTACK_SIZE * sizeof(avm_size_t));
+  ctx->call_stack = my_malloc(INITIAL_CALLSTACK_SIZE * sizeof(AVM_Stack_Frame));
   if (ctx->call_stack == NULL) {
     return avm__error(ctx, "unable to allocate call stack", ctx->call_stack_cap);
   }
