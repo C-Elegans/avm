@@ -56,7 +56,7 @@ static int eval_load ( const AVM_Operation op, AVM_Context *ctx )
   for (avm_size_t idx = address; idx < size + address; ++idx) {
     avm_int data;
 
-    if (avm_heap_get(ctx, &data, idx)) { return 1; }
+    avm_heap_get(ctx, &data, idx);
     if (avm_stack_push(ctx, data)) { return 1; }
   }
 

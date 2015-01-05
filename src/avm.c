@@ -117,15 +117,14 @@ void avm_free(AVM_Context *ctx)
 }
 
 
-int avm_heap_get(AVM_Context *ctx, avm_int *data, avm_size_t loc)
+void avm_heap_get(AVM_Context *ctx, avm_int *data, avm_size_t loc)
 {
   if (loc >= ctx->memory_size) { // memory never written, it's 0.
     *data = 0;
-    return 0;
+    return;
   }
 
   *data = ctx->memory[loc];
-  return 0;
 }
 
 int avm_heap_set(AVM_Context *ctx, avm_int data, avm_size_t loc)

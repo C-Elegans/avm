@@ -17,9 +17,7 @@ static int stringify_ ## NAME (AVM_Context* ctx, avm_size_t* ins, char** out) { 
 static int stringify_load(AVM_Context *ctx, avm_size_t *ins, char **out)
 {
   AVM_Operation op;
-  if (avm_heap_get(ctx, (avm_int *) &op, *ins)) {
-    return 1;
-  }
+  avm_heap_get(ctx, (avm_int *) &op, *ins);
 
   (*out) = afmt("load\t%dw\t0x%.4x", op.size, op.address);
   if (*out == NULL) { return 1; }
@@ -29,7 +27,7 @@ static int stringify_load(AVM_Context *ctx, avm_size_t *ins, char **out)
 static int stringify_store(AVM_Context *ctx, avm_size_t *ins, char **out)
 {
   AVM_Operation op;
-  if (avm_heap_get(ctx, (avm_int *) &op, *ins)) { return 1; }
+  avm_heap_get(ctx, (avm_int *) &op, *ins);
 
   (*out) = afmt("store\t%dw\t0x%.4x", op.size, op.address);
   if (*out == NULL) { return 1; }
@@ -39,7 +37,7 @@ static int stringify_store(AVM_Context *ctx, avm_size_t *ins, char **out)
 static int stringify_push(AVM_Context *ctx, avm_size_t *ins, char **out)
 {
   avm_int val;
-  if (avm_heap_get(ctx, &val, *ins + 1)) { return 1; }
+  avm_heap_get(ctx, &val, *ins + 1);
 
   (*out) = afmt("push\t0x%.16lx (dec. %ld)", val, val);
   if (*out == NULL) { return 1; }
@@ -50,7 +48,7 @@ static int stringify_push(AVM_Context *ctx, avm_size_t *ins, char **out)
 static int stringify_calli(AVM_Context *ctx, avm_size_t *ins, char **out)
 {
   AVM_Operation op;
-  if (avm_heap_get(ctx, (avm_int *) &op, *ins)) { return 1; }
+  avm_heap_get(ctx, (avm_int *) &op, *ins);
 
   (*out) = afmt("call\t0x%.4x", op.address);
   if (*out == NULL) { return 1; }
@@ -60,7 +58,7 @@ static int stringify_calli(AVM_Context *ctx, avm_size_t *ins, char **out)
 static int stringify_error(AVM_Context *ctx, avm_size_t *ins, char **out)
 {
   AVM_Operation op;
-  if (avm_heap_get(ctx, (avm_int *) &op, *ins)) { return 1; }
+  avm_heap_get(ctx, (avm_int *) &op, *ins);
 
   (*out) = afmt("error\t0x%.16lx", op.value);
   if (*out == NULL) { return 1; }
@@ -70,7 +68,7 @@ static int stringify_error(AVM_Context *ctx, avm_size_t *ins, char **out)
 static int stringify_jmpez(AVM_Context *ctx, avm_size_t *ins, char **out)
 {
   AVM_Operation op;
-  if (avm_heap_get(ctx, (avm_int *) &op, *ins)) { return 1; }
+  avm_heap_get(ctx, (avm_int *) &op, *ins);
 
   (*out) = afmt("jumpez\t0x%.4x", op.address);
   if (*out == NULL) { return 1; }
@@ -122,9 +120,7 @@ static const Stringifier stringifiers[opcode_count] = {
 int avm_stringify(AVM_Context *ctx, avm_size_t *ins, char **output)
 {
   AVM_Operation op;
-  if (avm_heap_get(ctx, (avm_int *) &op, *ins)) {
-    return 1;
-  }
+  avm_heap_get(ctx, (avm_int *) &op, *ins);
 
   if (op.kind >= opcode_count) {
     op.kind = avm_opc_error;

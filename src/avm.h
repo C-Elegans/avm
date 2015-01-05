@@ -19,7 +19,7 @@ void avm_free(AVM_Context *ctx);
 
 int avm_eval(AVM_Context *ctx, avm_int *result);
 
-int avm_heap_get(AVM_Context *ctx, avm_int *data, avm_size_t loc);
+void avm_heap_get(AVM_Context *ctx, avm_int *data, avm_size_t loc);
 int avm_heap_set(AVM_Context *ctx, avm_int data, avm_size_t loc);
 
 int avm_stack_push(AVM_Context *ctx, avm_int data);
