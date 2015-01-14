@@ -91,5 +91,4 @@ generation with bitshifts and the like.
 - The parser may be buggy, I dunno.
 - The VM relies on virtual memory, malicious programs might be able to send the
   OOM killer after you.
-- The VM itself is probably secure, although donations of AWS credits for
-  fuzzing are certainly appreciated.
+- I've run some fuzz testing, but there still may be bugs in the VM.
