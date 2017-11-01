@@ -129,7 +129,11 @@ void avm_heap_get(AVM_Context *ctx, avm_int *data, avm_size_t loc)
 
 int avm_heap_set(AVM_Context *ctx, avm_int data, avm_size_t loc)
 {
-  if (data == 0) { return 0; }  // pretend it's been written
+  if (data == 0 && loc >= ctx->memory_size) {
+    // This is beyond the bounds of the current memory. Since the memory
+    // defaults to zero, pretend it's been written
+    return 0;
+  }
 
   // double memory until enough is initialized
   while (loc >= ctx->memory_size) {
