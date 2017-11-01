@@ -8,7 +8,7 @@
 
 int asizet_add_bounds_check(avm_size_t address, avm_size_t size)
 {
-  return (uint64_t) address + (uint64_t) size > AVM_SIZE_MAX;
+  return (uint64_t) address + (uint64_t) size - 1 > AVM_SIZE_MAX;
 }
 
 

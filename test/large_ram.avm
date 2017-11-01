@@ -1,0 +1,4 @@
+push 1
+store 1 0xFFFFFFFF
+load 1 0xFFFFFFFF
+quit
