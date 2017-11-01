@@ -18,12 +18,19 @@ e1:
   ret
 ```
 
-[Tup][tupsite] is used to build the project because Make is too weird. Building
-is easy: just run `tup` in the main directory. The only dependencies are a
-recent gcc or clang. It probably works best with clang, I can't be bothered to
-setup `ifdef`s for every warning suppression.
+## Building
 
-[tupsite]: http://gittup.org/tup/
+This project uses CMake. There are no other depenencies.
+
+Use the following commands to build the project:
+
+```
+mkdir build
+cd build
+cmake ..
+make
+cat ../test/t1.avm | ./avm
+```
 
 ## Documentation
 AVM is a stack machine, and it provides two ways of placing stuff on the stack:

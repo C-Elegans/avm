@@ -1,5 +1,0 @@
-.gitignore
-CC=clang
-CFLAGS += -g3
-CFLAGS += -Weverything -Wno-unused-parameter
-CFLAGS += -std=gnu11
