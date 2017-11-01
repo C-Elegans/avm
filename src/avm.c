@@ -135,17 +135,23 @@ int avm_heap_set(AVM_Context *ctx, avm_int data, avm_size_t loc)
     return 0;
   }
 
-  // double memory until enough is initialized
-  while (loc >= ctx->memory_size) {
-    avm_size_t new_size = (avm_size_t) min(ctx->memory_size * 2, AVM_SIZE_MAX);
-    ctx->memory = my_crealloc(ctx->memory, ctx->memory_size * sizeof(avm_int),
-                              new_size * sizeof(avm_int));
+  if (loc >= ctx->memory_size) {
+    avm_size_t new_size = 1;
+    while (new_size < loc && new_size != 0) {
+      new_size *= 2;
+    }
 
+    if (new_size == 0) {
+      return avm__error(ctx, "internal error, tried to resize memory to index at"
+                        " %u, but memory size integer wrapped.", loc);
+    }
+
+    ctx->memory = my_crealloc(ctx->memory, ctx->memory_size * sizeof(avm_int),
+                                new_size * sizeof(avm_int));
     if (ctx->memory == NULL) {
       return avm__error(ctx, "unable to allocate more memory (%d avm_ints)",
                         new_size);
     }
-
     ctx->memory_size = new_size;
   }
 
