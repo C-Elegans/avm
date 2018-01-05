@@ -22,7 +22,7 @@ int main(int argc, char **args)
   size_t bytes_read;
   char *opc = read_file(stdin, &bytes_read);
   if (opc == NULL) {
-    printf("unable to read input");
+    fprintf(stderr, "unable to read input");
     return 1;
   }
 
@@ -30,7 +30,7 @@ int main(int argc, char **args)
   char* error;
   size_t memlen;
   if(avm_parse(opc, &memory, &error, &memlen)) {
-    printf("parse error: %s\n", error);
+    fprintf(stderr, "parse error: %s\n", error);
     my_free(opc);
     my_free(memory);
     my_free(error);
@@ -42,7 +42,7 @@ int main(int argc, char **args)
   my_free(opc);
   my_free(memory);
   if (retcode) {
-    printf("failed to initialize vm\n");
+    fprintf(stderr, "failed to initialize vm\n");
     return 1;
   }
 
