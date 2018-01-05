@@ -9,8 +9,16 @@
 
 #ifdef AVM_EXECUTABLE
 
-int main(int argv, char **args)
+int main(int argc, char **args)
 {
+  FILE* fin = stdin;
+  if(argc == 2){
+    fin = fopen(argv[1], "r");
+    if(!fin){
+      fprintf(stderr, "Unable to open file: %s\n", argv[1]);
+      return 1;
+    }
+  }
   size_t bytes_read;
   char *opc = read_file(stdin, &bytes_read);
   if (opc == NULL) {
